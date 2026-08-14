@@ -3,6 +3,8 @@ This project is from a ROBLOX game called "**Plant with Coding**" by Lated Graha
 
 Game Link: https://www.roblox.com/games/122761763017872/Plant-with-Coding
 
+Script Version: 5.5.0
+
 # FEATURES
 **5 Buttons:** Plot, AFK Plot, Teleport To Drone, Sell All Crops, Print All Stocks
 

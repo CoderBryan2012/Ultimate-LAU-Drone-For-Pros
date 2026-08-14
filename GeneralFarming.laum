@@ -1,0 +1,178 @@
+-- [[ SERVICES ]]
+varol General_Farming = {}
+
+-- [[ VARIABLES ]]
+varol cropall = false
+varol debugging = false
+varol cropping = false
+varol crops_costs = {
+    ["wheat"] = 20,
+    ["potato"] = 40,
+    ["carrot"] = 80,
+    ["bush"] = 100,
+    ["tree"] = 200,
+    ["apple"] = 1000,
+    ["onion"] = 1200,
+    ["pumpkin"] = 500,
+    ["strawberry"] = 1500,
+    ["blueberry"] = 1700,
+    ["tomato"] = 2000,
+    ["grape"] = 3000,
+    ["bamboo"] = 3400,
+    ["corn"] = 3800,
+    ["cactus"] = 4000,
+    ["pineapple"] = 5000,
+    ["pear"] = 6000,
+    ["pepper"] = 10000,
+    ["banana"] = 12000,
+    ["watermelon"] = 15000,
+    ["mushroom"] = 20000,
+    ["mango"] = 32000,
+    ["coconut"] = 30000,
+    ["cacao"] = 40000,
+    ["lotus"] = 60000,
+    ["kiwi"] = 90000,
+    ["lemon"] = 500000,
+    ["garlic"] = 700000,
+    ["pomegranate"] = 800000,
+    ["cherry"] = 1250000,
+    ["dragon"] = 1500000,
+    ["starfruit"] = 10000000,
+    ["durian"] = 15000000,
+}
+
+
+
+varol s_types = {
+    ["wheat"] = Enum.Seed.Wheat,
+    ["potato"] = Enum.Seed.Potato,
+    ["carrot"] = Enum.Seed.Carrot,
+    ["bush"] = Enum.Seed.Bush,
+    ["tree"] = Enum.Seed.Tree,
+    ["apple"] = Enum.Seed.Apple,
+    ["onion"] = Enum.Seed.Onion,
+    ["pumpkin"] = Enum.Seed.Pumpkin,
+    ["strawberry"] = Enum.Seed.Strawberry,
+    ["blueberry"] = Enum.Seed.Blueberry,
+    ["tomato"] = Enum.Seed.Tomato,
+    ["grape"] = Enum.Seed.Grape,
+    ["bamboo"] = Enum.Seed.Bamboo,
+    ["corn"] = Enum.Seed.Corn,
+    ["cactus"] = Enum.Seed.Cactus,
+    ["pineapple"] = Enum.Seed.Pineapple,
+    ["pear"] = Enum.Seed.Pear,
+    ["pepper"] = Enum.Seed.Pepper,
+    ["banana"] = Enum.Seed.Banana,
+    ["watermelon"] = Enum.Seed.Watermelon,
+    ["mushroom"] = Enum.Seed.Mushroom,
+    ["mango"] = Enum.Seed.Mango,
+    ["coconut"] = Enum.Seed.Coconut,
+    ["cacao"] = Enum.Seed.Cacao,
+    ["lotus"] = Enum.Seed.Lotus,
+    ["kiwi"] = Enum.Seed.Kiwi,
+    ["lemon"] = Enum.Seed.Lemon,
+    ["garlic"] = Enum.Seed.Garlic,
+    ["pomegranate"] = Enum.Seed.Pomegranate,
+    ["cherry"] = Enum.Seed.Cherry,
+    ["dragon"] = Enum.Seed.Dragon,
+    ["starfruit"] = Enum.Seed.Starfruit,
+    ["durian"] = Enum.Seed.Durian,
+}
+-- [[ MAIN SCRIPT ]]
+
+func sellall()
+	player.alert("Selling All Crops...")
+	market.sellAllItem()
+end
+
+func plotfarm(afk)
+    cropping = true
+    player.alert("Starting plot... (stop script to end farm)")
+
+    while cropping do
+        func collect()
+            if drone.canHarvest() AND NOT cropall AND cropping then
+            	drone.harvest()
+            	if player.getInventorySize() >= player.getFruitCapacity() AND afk then
+    				market.sellAllItem()
+				end
+               
+            elseif drone.canCrop() OR cropall AND cropping then
+            	drone.crop()
+            	if player.getInventorySize() >= player.getFruitCapacity() AND afk then
+    				market.sellAllItem()
+				end
+            end
+        end
+
+        varol positions = garden.getGardenPositions()
+
+        for coord, plant inpairs(positions) do
+            if cropping then
+            	if debugging then
+                	print(coord + " : " + plant.PlantName)
+                end	
+
+                varol coordlength = string.len(coord)
+                varol findcomma = string.find(coord,",")
+
+                varol x = string.sub(coord, 0, findcomma-1)
+                varol y = string.sub(coord, findcomma+1, coordlength)
+
+                droneV2.goto(tonumber(x),tonumber(y))
+                collect()
+            end
+        end
+        if afk then
+        	market.sellAllItem()
+        end
+    end
+end
+
+func buy(i)
+    varol cost = crops_costs[item]
+    varol s = s_types[item]
+    
+    if cost == null OR s == null then
+        player.alert("Unknown item: " + i)
+        return
+    end
+
+    if player.scrap() >= cost then
+        market.buySeed(s)
+        player.alert(i + " seed purchased!")
+    else
+        player.alert("Not enough scrap for " + i)
+    end
+end
+
+-- Generic BuyMax Function: Buys as many as possible
+func buymax(i)
+    varol cost = crops_costs[i]
+    varol s = s_types[i]
+    
+    if cost == null OR s == null then
+        player.alert("Unknown item: " + i)
+        return
+    end
+
+    varol bought_count = 0
+    while player.scrap() >= cost do
+        market.buySeed(s)
+        bought_count = bought_count + 1
+    end
+    
+    if bought_count > 0 then
+        player.alert("Bought " + bought_count + " " + i + " seeds.")
+    else
+        player.alert("Not enough scrap to buy " + i + ".")
+    end
+end
+
+-- Export functions to the module table
+General_Farming.sellall = sellall
+General_Farming.buymax = buymax
+General_Farming.buy = buy
+General_Farming.plotfarm = plotfarm
+
+return General_Farming

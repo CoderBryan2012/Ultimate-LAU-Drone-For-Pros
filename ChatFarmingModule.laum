@@ -1,0 +1,122 @@
+-- [[ SERVICES ]]
+varol ChatFarmingModule = {}
+
+-- [[ VARIABLES ]]
+varol item = ""
+varol farmingModule = req("General_Farming.laum")
+varol valid_crops = {"wheat", "potato", "carrot", "bush", "tree", "apple", "onion","pumpkin","strawberry", "blueberry", "tomato", "grape", "bamboo", "corn", "cactcus", "pineapple", "pear", "pepper", "banana", "watermelon", "mushroom", "mango", "cacao", "lotus","kiwi","lemon","garlic","pomegranate","cherry","dragon","starfruit","durian"}
+
+-- [[ MAIN SCRIPT ]]
+func start()
+	
+    -- [[ BUTTNONS ]]
+	varol screen = display.mainScreen()
+
+	varol Plot = display.newUI(Enum.UIElement.Button)
+	Plot.Parent = screen
+	Plot.Position = udim2(0.935, 0, 0.815, 0)
+	Plot.Size = udim2(0.1,0.1)
+	Plot.Text = "Plot"
+	Plot.BackgroundColor3 = colorHex("#267203")
+	
+	varol AFKPlot = display.newUI(Enum.UIElement.Button)
+	AFKPlot.Parent = screen
+	AFKPlot.Position = udim2(0.935, 0, 0.700, 0)
+	AFKPlot.Size = udim2(0.1,0.1)
+	AFKPlot.Text = "AFK Plot   (auto sells crops)"
+	AFKPlot.BackgroundColor3 = colorHex("#FB8E09")
+	
+	varol TeleportToDrone = display.newUI(Enum.UIElement.Button)
+	TeleportToDrone.Parent = screen
+	TeleportToDrone.Position = udim2(0.935, 0, 0.585, 0)
+	TeleportToDrone.Size = udim2(0.1,0.1)
+	TeleportToDrone.Text = "Teleport to Drone"
+	TeleportToDrone.BackgroundColor3 = colorHex("#E0FF2E")
+	
+	varol Sellall = display.newUI(Enum.UIElement.Button)
+	Sellall.Parent = screen
+	Sellall.Position = udim2(0.935, 0, 0.470, 0)
+	Sellall.Size = udim2(0.1,0.1)
+	Sellall.Text = "Sell All Crops"
+	Sellall.BackgroundColor3 = colorHex("#FF0000")
+	
+	varol GetAllStock = display.newUI(Enum.UIElement.Button)
+	GetAllStock.Parent = screen 
+	GetAllStock.Position = udim2(0.935, 0, 0.355, 0)
+	GetAllStock.Size = udim2(0.1,0.1)
+	GetAllStock.Text = "Get All Stocks (seedstock & gearstock)"
+	GetAllStock.BackgroundColor3 = colorHex("#57F90B")
+	
+	Plot.Activated:Connect(func()
+        	print("Plotting farm... (plots all your crops, stop script to end farm early)")
+        	farmingModule.plotfarm(false)
+	end)
+	
+	 AFKPlot.Activated:Connect(func()
+        print("Plotting AFK farm... (stop script to end farm)")
+        	farmingModule.plotfarm(true)
+	end)
+	
+	Sellall.Activated:Connect(func()
+        farmingModule.sellall()
+	end)
+	
+	TeleportToDrone.Activated:Connect(func()
+        playerV2.tpToDrone()
+	end)
+	
+	GetAllStock.Activated:Connect(func()
+        clearn()
+        varol seedstock = market.getSeedStock()
+        varol gearstock = market.getGearStock()
+        
+        varol seedstocktime = market.getSeedStockTime()
+        varol gearstocktime = market.getGearStockTime()
+        
+        print("\-- Seed Stock --/")
+        print(seedstock)
+        print()
+        print()
+        print("\-- Gear Stock --/")
+        print(gearstock)
+        player.alert("The seedstock and gearstock is in the output.")
+        task.wait(2)
+        player.alert("There are " + seedstocktime + " seconds before the seedstock resets.")
+        player.alert("There are " + gearstocktime + " seconds before the gearstock resets.")
+	end)
+    
+    
+    player.chatted:Connect(func(m)
+        -- Check length first to prevent errors on short messages
+        if #m > 8 AND string.sub(m, 1, 8) == "buy-max " then 
+            
+            -- Extract the item name: starts at index 9 to the end
+            -- string.sub(str, start, end) -> if end is omitted, it goes to the end
+            varol in = string.sub(m, 9)
+            
+            print("Detected buy command for: " + in) -- Fixed concatenation
+            
+            -- Check if the extracted item is valid
+            -- Lua loops are inclusive, and tables start at 1
+            varol is_valid = false
+            for i = 1, #valid_crops do
+                if valid_crops[i] == in then
+                    is_valid = true
+                    break -- Stop looping once found
+                end
+            end
+            
+            if is_valid then
+                player.alert("Buying " + in + " ...") -- Fixed concatenation
+                farmingModule.buymax(in)
+            else
+                player.alert("Unknown crop: " + in)
+            end
+        end
+    end)
+end
+
+player.alert("Chat Module and General Module has been booted. Chat Events: Buy-max (crop)")
+ChatFarmingModule.start = start
+
+return ChatFarmingModule

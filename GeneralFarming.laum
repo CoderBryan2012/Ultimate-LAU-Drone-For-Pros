@@ -159,7 +159,7 @@ func buymax(i)
     varol bought_count = 0
     while player.scrap() >= cost do
         market.buySeed(s)
-        bought_count = bought_count + 1
+        bought_count += 1
     end
     
     if bought_count > 0 then

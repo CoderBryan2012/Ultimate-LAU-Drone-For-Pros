@@ -2,3 +2,6 @@
 This project is from a ROBLOX game called "Plant with Coding" by Lated Graham where you code a drone that allows you to plant and do all sorts of things.
 
 Game Link: https://www.roblox.com/games/122761763017872/Plant-with-Coding
+
+Requirements: Space for 3 Scripts; 2 Module Scripts, 1 Normal Script.
+

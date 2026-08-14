@@ -91,7 +91,7 @@ func plotfarm(afk)
 
     while cropping do
         func collect()
-            if drone.canHarvest() AND NOT cropall AND cropping then
+            if drone.canHarvest() AND NOT cropall AND cropping OR drone.getPlantHasFruit() then
             	drone.harvest()
             	if player.getInventorySize() >= player.getFruitCapacity() AND afk then
     				market.sellAllItem()
